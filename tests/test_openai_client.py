@@ -129,7 +129,22 @@ class TestPdf(_NoKeyTestCase):
         s.encode("latin-1")  # darf NICHT werfen
         self.assertNotIn("–", s)
 
-    def test_package_includes_pdf_if_fpdf(self):
+    def test_city_town(self):
+        self.assertEqual(ag._city_town("48599 Musterstadt"), "Musterstadt")
+        self.assertEqual(ag._city_town("12345 Musterstadt"), "Musterstadt")
+        self.assertEqual(ag._city_town("Köln"), "Köln")
+        self.assertEqual(ag._city_town(""), "Ort")
+
+    def test_profile_contact_fields(self):
+        from models import Profile
+        p = Profile.from_dict({"name": "Max", "contact": {
+            "email": "a@b.de", "phone": "0123 456", "street": "Allee 5",
+            "city": "12345 Musterstadt"}})
+        self.assertEqual(p.phone, "0123 456")
+        self.assertEqual(p.street, "Allee 5")
+        self.assertEqual(p.city, "12345 Musterstadt")
+
+    def test_package_creates_valid_pdf(self):
         try:
             import fpdf  # noqa: F401
         except Exception:
@@ -138,8 +153,11 @@ class TestPdf(_NoKeyTestCase):
             pkg, used_ai, files = ag.create_application_package(
                 make_result(), make_profile(), Path(tmp), cv_text="cv", zeugnis_text="z")
             self.assertIn("Anschreiben.pdf", files)
-            self.assertTrue((pkg / "Anschreiben.pdf").exists())
-            self.assertGreater((pkg / "Anschreiben.pdf").stat().st_size, 200)
+            pdf = pkg / "Anschreiben.pdf"
+            self.assertTrue(pdf.exists())
+            data = pdf.read_bytes()
+            self.assertTrue(data.startswith(b"%PDF"))     # gültiges PDF
+            self.assertGreater(len(data), 800)            # nicht trivial leer
 
 
 class TestWithMockedAI(unittest.TestCase):

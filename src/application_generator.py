@@ -82,7 +82,8 @@ def _local_body(result: MatchResult, profile: Profile) -> str:
 
 
 def _build_content(result: MatchResult, profile: Profile, use_ai: bool,
-                   cv_text: str = "", zeugnis_text: str = "") -> Tuple[str, bool, str]:
+                   cv_text: str = "", zeugnis_text: str = "",
+                   reference_text: str = "") -> Tuple[str, bool, str]:
     """Liefert (Dokument-Text, used_ai, Anschreiben-Text)."""
     job = result.job
     used_ai = False
@@ -91,7 +92,8 @@ def _build_content(result: MatchResult, profile: Profile, use_ai: bool,
     if use_ai:
         try:
             ai_text = openai_client.generate_cover_letter_with_ai(
-                job, profile, result, cv_text=cv_text, zeugnis_text=zeugnis_text
+                job, profile, result, cv_text=cv_text, zeugnis_text=zeugnis_text,
+                reference_text=reference_text,
             )
             if ai_text:
                 signature = f"\n\nMit freundlichen Grüßen\n{profile.name or 'Dein Name'}"
@@ -142,7 +144,8 @@ def generate_draft_ex(result: MatchResult, profile: Profile, output_dir: Path,
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    content, used_ai, _ = _build_content(result, profile, use_ai, cv_text, zeugnis_text)
+    content, used_ai, _ = _build_content(
+        result, profile, use_ai, cv_text, zeugnis_text, config_loader.load_reference())
     path = output_dir / f"{result.job.id}_{_slug(result.job.company)}.md"
     path.write_text(content, encoding="utf-8")
     return path, used_ai
@@ -177,31 +180,93 @@ def _pdf_safe(text: str) -> str:
     return text.encode("latin-1", "replace").decode("latin-1")
 
 
-def _letter_for_pdf(result: MatchResult, profile: Profile, body: str) -> str:
-    head = (f"{profile.name or ''}\n{profile.email or ''}\n\n"
-            f"{date.today().strftime('%d.%m.%Y')}\n\n"
-            f"Bewerbung: {result.job.title} - {result.job.company}\n\n")
-    return head + body
+# Layout-Konstanten (A4 in mm), angelehnt an die Referenz-Vorlage
+_PAGE_W = 210
+_MARGIN_L = 22
+_MARGIN_R = 22
+_HEADER_H = 26
+_HEADER_RGB = (40, 54, 69)   # dunkles Slate, wie die Kopfzeile der Referenz
 
 
-def _try_write_pdf(text: str, path: Path) -> bool:
-    """Schreibt den Anschreiben-Text als PDF (fpdf2). Ohne fpdf2 -> False."""
+def _city_town(city: str) -> str:
+    """'12345 Musterstadt' -> 'Musterstadt'. Ohne PLZ bleibt der Text unverändert."""
+    return re.sub(r"^\s*\d{4,5}\s*", "", (city or "").strip()) or "Ort"
+
+
+def _render_letter_pdf(result: MatchResult, profile: Profile, body: str, path: Path) -> bool:
+    """Erzeugt ein professionelles Anschreiben-PDF (fpdf2): dunkler Balken,
+    Absenderblock rechts, Datum, fetter Betreff, Fließtext, Signaturbereich.
+    Ohne fpdf2 -> False."""
     try:
         from fpdf import FPDF
     except Exception:
         return False
     try:
+        name = profile.name or "Dein Name"
+        street = profile.street or "Musterstraße 1"
+        city = profile.city or "12345 Musterstadt"
+        phone = profile.phone or "0123 4567890"
+        email = profile.email or "deine@email.de"
+
         pdf = FPDF(format="A4")
         pdf.set_auto_page_break(auto=True, margin=20)
-        pdf.set_margins(20, 20, 20)
+        pdf.set_margins(_MARGIN_L, 20, _MARGIN_R)
         pdf.add_page()
-        pdf.set_font("Helvetica", size=11)
-        for line in _pdf_safe(text).split("\n"):
-            if line.strip() == "":
-                pdf.ln(4)
+
+        # 1) Dunkler Kopfbalken mit Name (weiß)
+        pdf.set_fill_color(*_HEADER_RGB)
+        pdf.rect(0, 0, _PAGE_W, _HEADER_H, style="F")
+        pdf.set_text_color(255, 255, 255)
+        pdf.set_xy(_MARGIN_L, 7)
+        pdf.set_font("Helvetica", "B", 18)
+        pdf.cell(0, 9, _pdf_safe(name), new_x="LMARGIN", new_y="NEXT")
+        pdf.set_x(_MARGIN_L)
+        pdf.set_font("Helvetica", "", 10)
+        pdf.cell(0, 5, _pdf_safe("Bewerbung"), new_x="LMARGIN", new_y="NEXT")
+        pdf.set_text_color(0, 0, 0)
+
+        # 2) Absenderblock rechtsbündig
+        pdf.set_y(_HEADER_H + 8)
+        pdf.set_font("Helvetica", "", 9.5)
+        for line in (name, street, city, "Telefon: " + phone, "E-Mail: " + email):
+            pdf.set_x(_MARGIN_L)
+            pdf.cell(0, 5, _pdf_safe(line), align="R", new_x="LMARGIN", new_y="NEXT")
+
+        # 3) Datum rechtsbündig
+        pdf.ln(6)
+        datum = f"{_city_town(city)}, {date.today().strftime('%d.%m.%Y')}"
+        pdf.set_x(_MARGIN_L)
+        pdf.cell(0, 5, _pdf_safe(datum), align="R", new_x="LMARGIN", new_y="NEXT")
+
+        # 4) Betreff (fett)
+        pdf.ln(10)
+        pdf.set_x(_MARGIN_L)
+        pdf.set_font("Helvetica", "B", 11.5)
+        pdf.multi_cell(0, 6, _pdf_safe(f"Bewerbung als {result.job.title}"),
+                       new_x="LMARGIN", new_y="NEXT")
+
+        # 5) Fließtext (Grußformel + Name werden separat gesetzt -> Signaturraum)
+        pdf.ln(5)
+        pdf.set_font("Helvetica", "", 11)
+        marker = "Mit freundlichen Grüßen"
+        idx = body.find(marker)
+        pre = (body[:idx] if idx != -1 else body).strip()
+        for para in pre.split("\n"):
+            if para.strip() == "":
+                pdf.ln(3)
             else:
-                # new_x/new_y: nach jeder Zeile an den linken Rand der nächsten Zeile
-                pdf.multi_cell(0, 6, line, new_x="LMARGIN", new_y="NEXT")
+                pdf.set_x(_MARGIN_L)
+                pdf.multi_cell(0, 6, _pdf_safe(para), align="J",
+                               new_x="LMARGIN", new_y="NEXT")
+
+        # 6) Grußformel + Signaturbereich + Name
+        pdf.ln(7)
+        pdf.set_x(_MARGIN_L)
+        pdf.multi_cell(0, 6, "Mit freundlichen Grüßen", new_x="LMARGIN", new_y="NEXT")
+        pdf.ln(16)  # Platz für Unterschrift
+        pdf.set_x(_MARGIN_L)
+        pdf.multi_cell(0, 6, _pdf_safe(name), new_x="LMARGIN", new_y="NEXT")
+
         pdf.output(str(path))
         return True
     except Exception as exc:
@@ -254,11 +319,13 @@ def create_application_package(result: MatchResult, profile: Profile,
     if zeugnis_text is None:
         zeugnis_text = config_loader.load_zeugnis()
 
-    # 1) Anschreiben (Markdown + PDF)
-    content, used_ai, body = _build_content(result, profile, use_ai, cv_text, zeugnis_text)
+    # 1) Anschreiben (Markdown + professionelles PDF)
+    reference_text = config_loader.load_reference()
+    content, used_ai, body = _build_content(
+        result, profile, use_ai, cv_text, zeugnis_text, reference_text)
     (pkg_dir / "Anschreiben.md").write_text(content, encoding="utf-8")
     files = ["Anschreiben.md"]
-    pdf_ok = _try_write_pdf(_letter_for_pdf(result, profile, body), pkg_dir / "Anschreiben.pdf")
+    pdf_ok = _render_letter_pdf(result, profile, body, pkg_dir / "Anschreiben.pdf")
     if pdf_ok:
         files.append("Anschreiben.pdf")
 

@@ -172,7 +172,8 @@ def analyze_job(job: "Job", cv_text: str, zeugnis_text: str,
 
 def generate_cover_letter_with_ai(job: "Job", profile: "Profile",
                                   match_result: "MatchResult",
-                                  cv_text: str = "", zeugnis_text: str = "") -> str:
+                                  cv_text: str = "", zeugnis_text: str = "",
+                                  reference_text: str = "") -> str:
     """Erzeugt ein kurzes, professionelles deutsches Anschreiben auf Basis von
     CV + Zeugnis + Stelle.
 
@@ -195,4 +196,9 @@ def generate_cover_letter_with_ai(job: "Job", profile: "Profile",
         f"({skills}) und konkrete Projekte aus dem Lebenslauf.\n\n"
         + _context_block(cv_text, zeugnis_text, job)
     )
+    if reference_text.strip():
+        user_prompt += (
+            "\n\n=== STIL-VORLAGE (Ton/Aufbau nachahmen, Inhalte NICHT kopieren) ===\n"
+            + reference_text.strip()[:2500]
+        )
     return _chat(system_prompt, user_prompt)

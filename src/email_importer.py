@@ -180,7 +180,7 @@ class _IndeedAlertParser(HTMLParser):
 
 import re as _re
 
-# Deutsche PLZ + Ort, z. B. "74076 Heilbronn" / "48599 Gronau"
+# Deutsche PLZ + Ort, z. B. "74076 Heilbronn" / "12345 Musterstadt"
 _PLZ_CITY = _re.compile(r"\b\d{5}\s+[A-Za-zÄÖÜäöüß][\wÄÖÜäöüß .\-/]{1,40}")
 _LOCATION_WORDS = {"remote", "homeoffice", "home office", "deutschland", "hybrid"}
 
@@ -199,7 +199,7 @@ _COMPANY_SUFFIX = _re.compile(
 # Plausible Orte (Substring-Treffer genügt) – ergänzt PLZ-Erkennung
 _CITY_HINTS = {
     "köln", "düsseldorf", "essen", "dortmund", "bonn", "duisburg", "aachen",
-    "münster", "wuppertal", "bielefeld", "bochum", "krefeld", "gronau",
+    "münster", "wuppertal", "bielefeld", "bochum", "krefeld",
     "berlin", "hamburg", "münchen", "frankfurt", "stuttgart", "heilbronn",
     "hannover", "nürnberg", "leipzig", "dresden", "bremen", "karlsruhe",
     "mannheim", "mainz", "kassel", "freiburg", "remote", "homeoffice",

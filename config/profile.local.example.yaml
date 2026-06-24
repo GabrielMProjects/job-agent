@@ -2,12 +2,15 @@
 #
 # So benutzt du es:
 #   1. Diese Datei nach  config/profile.local.yaml  kopieren.
-#   2. Deine ECHTEN Daten eintragen (Name, E-Mail).
+#   2. Deine ECHTEN Daten eintragen (Name, Adresse, Telefon, E-Mail).
 #
 # config/profile.local.yaml ist in .gitignore -> bleibt nur lokal.
 # Die Werte hier überschreiben die Platzhalter aus config/profile.yaml
-# (z. B. für Name + E-Mail in den generierten Anschreiben).
+# und füllen den Absenderblock im Anschreiben-PDF.
 
 name: Max Mustermann
 contact:
   email: max.mustermann@example.com
+  phone: "0123 4567890"
+  street: Musterstraße 1
+  city: 12345 Musterstadt

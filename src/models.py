@@ -111,6 +111,9 @@ class Profile:
 
     name: str = ""
     email: str = ""
+    phone: str = ""
+    street: str = ""
+    city: str = ""        # "PLZ Ort", z. B. "12345 Musterstadt"
     target_roles: List[str] = field(default_factory=list)
     skills: List[str] = field(default_factory=list)
     projects: List[str] = field(default_factory=list)
@@ -119,11 +122,13 @@ class Profile:
 
     @classmethod
     def from_dict(cls, data: dict) -> "Profile":
-        contact = data.get("contact") or {}
+        contact = data.get("contact") if isinstance(data.get("contact"), dict) else {}
         return cls(
             name=data.get("name", ""),
-            email=(contact.get("email") if isinstance(contact, dict) else "")
-            or data.get("email", ""),
+            email=contact.get("email", "") or data.get("email", ""),
+            phone=contact.get("phone", ""),
+            street=contact.get("street", ""),
+            city=contact.get("city", "") or contact.get("plz_ort", ""),
             target_roles=list(data.get("target_roles", []) or []),
             skills=list(data.get("skills", []) or []),
             projects=list(data.get("projects", []) or []),

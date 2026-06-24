@@ -7,6 +7,9 @@ name: Max Mustermann
 
 contact:
   email: example@example.com
+  phone: "0123 4567890"
+  street: Musterstraße 1
+  city: 12345 Musterstadt
 
 # Offen für Quereinstieg / praktische Projekte statt formaler Abschlüsse?
 open_to_career_change: true
@@ -15,7 +18,6 @@ open_to_career_change: true
 location:
   - Deutschland
   - NRW
-  - Gronau
   - Remote
 
 # Zielrollen

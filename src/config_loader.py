@@ -179,6 +179,12 @@ def load_zeugnis(path: str | os.PathLike | None = None) -> str:
     return load_text(path or (_CONFIG_DIR / "zeugnis.md"))
 
 
+def load_reference(path: str | os.PathLike | None = None) -> str:
+    """Lädt das Referenz-Anschreiben als Stil-Vorlage (Default:
+    config/anschreiben_referenz.md)."""
+    return load_text(path or (_CONFIG_DIR / "anschreiben_referenz.md"))
+
+
 # ---------------------------------------------------------------------------
 # .env laden (ohne python-dotenv)
 # ---------------------------------------------------------------------------

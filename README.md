@@ -5,6 +5,14 @@ CSV-Datei gegen dein Profil, speichert die Ergebnisse in SQLite, schreibt eine
 `matches.csv` und erzeugt einfache Bewerbungs-**Entwürfe**. Optional lässt er
 sich über einen Telegram-Bot steuern.
 
+## Demo
+
+![job-agent Workflow](docs/demo.gif)
+
+*Schematische Darstellung (Mockup) des Telegram-Workflows mit Platzhalterdaten –
+die gezeigte Funktionalität (Job-Push, „Bewerben vorbereiten", PDF-Paket mit
+KI-Anschreiben) ist real.*
+
 ## Wichtige Grundsätze (Sicherheit)
 
 - ❌ **Kein Scraping** von Indeed, LinkedIn oder anderen Plattformen.
