@@ -1,0 +1,13 @@
+# Lokale Identitäts-Overrides – NICHT committen!
+#
+# So benutzt du es:
+#   1. Diese Datei nach  config/profile.local.yaml  kopieren.
+#   2. Deine ECHTEN Daten eintragen (Name, E-Mail).
+#
+# config/profile.local.yaml ist in .gitignore -> bleibt nur lokal.
+# Die Werte hier überschreiben die Platzhalter aus config/profile.yaml
+# (z. B. für Name + E-Mail in den generierten Anschreiben).
+
+name: Max Mustermann
+contact:
+  email: max.mustermann@example.com

@@ -1,0 +1,32 @@
+# Such-/Bewertungs-Konfiguration
+#
+# Diese Datei ist optional. Fehlt sie, nutzt der Matcher seine Defaults
+# (siehe src/matcher.py). Hier lassen sich Basiswert, Schwellwerte und
+# Punktegewichte anpassen, ohne Code zu ändern.
+
+scoring:
+  base_score: 50
+
+# Schwellwerte für die Empfehlung
+thresholds:
+  sehr_gut: 85   # >= 85  -> "Sehr gut"
+  gut: 75        # >= 75  -> "Gut"
+  pruefen: 60    # >= 60  -> "Prüfen", darunter "Ablehnen"
+
+# Punktegewichte (überschreiben die Defaults im Code)
+points:
+  junior: 12
+  tech_core_per_match: 5
+  tech_core_max: 25
+  web_stack: 6
+  location: 8
+  career_changer: 8
+  extras: 6
+  senior_required: 35
+  experience_5plus: 30
+  experience_3plus: 15
+  degree_required: 20
+  training_required: 12
+  wrong_stack: 50
+  support_role: 45
+  network_only: 40

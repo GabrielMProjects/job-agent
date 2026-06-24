@@ -1,0 +1,60 @@
+# Bewerber-Profil für den Job-Agent
+# Dieses Profil wird beim Matching gegen jeden Job verglichen.
+
+# Platzhalter für das öffentliche Repo. Echte Daten gehören in
+# config/profile.local.yaml (ignoriert) – siehe config/profile.local.example.yaml.
+name: Max Mustermann
+
+contact:
+  email: example@example.com
+
+# Offen für Quereinstieg / praktische Projekte statt formaler Abschlüsse?
+open_to_career_change: true
+
+# Standorte / Arbeitsmodelle, die passen
+location:
+  - Deutschland
+  - NRW
+  - Gronau
+  - Remote
+
+# Zielrollen
+target_roles:
+  - Junior DevOps Engineer
+  - Junior Cloud Engineer
+  - Junior Fullstack Developer
+  - Junior Platform Engineer
+  - Cloud-native Developer
+
+# Skills (werden für skills_to_emphasize genutzt)
+skills:
+  - Angular
+  - Laravel
+  - TypeScript
+  - JavaScript
+  - Python
+  - PHP
+  - MySQL
+  - AWS
+  - Docker
+  - Kubernetes
+  - Helm
+  - Terraform
+  - Ansible
+  - GitHub Actions
+  - CI/CD
+  - Grafana
+  - Prometheus
+  - Loki
+  - Tempo
+  - OpenTelemetry
+  - Linux
+  - Bash
+  - Git
+
+# Projekte (werden im Anschreiben-Entwurf referenziert)
+projects:
+  - Cloud- & DevOps-Demoprojekt (Angular, Laravel, k3s, Terraform, AWS) - github.com/GabrielMProjects/ki-odner
+  - Fullstack-Anwendung mit Angular und Laravel, containerisiert mit Docker
+  - Observability Stack mit Grafana, Prometheus, Loki, Tempo und OpenTelemetry
+  - Multi-Agenten-Systeme und KI-gestützte Automatisierung

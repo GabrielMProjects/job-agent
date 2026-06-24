@@ -1,0 +1,18 @@
+# Der Job-Agent läuft grundsätzlich mit der Python Standard Library.
+#
+# PyYAML ist EMPFOHLEN, aber optional: ist es nicht installiert, nutzt
+# config_loader.py einen kleinen eingebauten YAML-Parser.
+#
+# Der Telegram-Bot nutzt urllib (Standard Library) und benötigt KEIN
+# zusätzliches Paket.
+#
+# Installation (optional):
+#   pip install -r requirements.txt
+#
+# `openai` ist OPTIONAL: nur nötig, wenn KI-Anschreiben genutzt werden sollen.
+# Ohne das Paket (oder ohne OPENAI_API_KEY) läuft alles lokal weiter.
+
+PyYAML>=6.0
+openai>=1.0
+# Optional: nur für das Anschreiben-PDF. Ohne fpdf2 bleibt das Anschreiben als .md.
+fpdf2>=2.7

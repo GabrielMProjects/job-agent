@@ -1,0 +1,45 @@
+# ============================================================
+# Secrets / Zugangsdaten – NIEMALS committen
+# (Telegram-Token, OpenAI-Key, IMAP/Freenet-Passwort)
+# ============================================================
+.env
+.env.*
+!.env.example
+
+# ============================================================
+# Persönliche Daten (Lebenslauf, Zeugnisse, Referenz-Anschreiben)
+# ============================================================
+src/pdf/
+private/
+!private/README.md
+config/cv.md
+config/zeugnis.md
+config/anschreiben_referenz.md
+# Echte Identität (Name/E-Mail) – überschreibt profile.yaml lokal
+config/profile.local.yaml
+
+# ============================================================
+# Generierte Ausgaben & lokale Datenbanken
+# (output/ enthält u. a. kopierte Lebenslauf-/Zeugnis-PDFs)
+# ============================================================
+output/
+*.sqlite
+*.sqlite3
+*.db
+
+# ============================================================
+# Python
+# ============================================================
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.pytest_cache/
+
+# ============================================================
+# Logs / temporäre Dateien
+# ============================================================
+*.log
+*.tmp
+_tmp_*.py
